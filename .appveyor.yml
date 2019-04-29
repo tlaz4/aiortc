@@ -1,0 +1,22 @@
+environment:
+  matrix:
+    - PYTHON_VERSION: 3.6
+      CONDA: C:\Miniconda36
+
+init:
+  - ps: if ($Env:PLATFORM -eq "x64") { $Env:CONDA = "${Env:CONDA}-x64" }
+
+install:
+  - '"%CONDA%\Scripts\activate.bat"'
+  - conda config --set always_yes true
+  - conda config --add channels conda-forge
+  - conda config --add channels rdonnelly
+  - conda update -q conda
+  - conda install ffmpeg=3.4.2 libopus libvpx
+  - dir %CONDA_PREFIX%\Library\lib
+  - pip install av --global-option=--ffmpeg-dir=%CONDA_PREFIX%\Library
+
+build: false
+
+test_script:
+  - "%CMD_IN_ENV% python setup.py test"
