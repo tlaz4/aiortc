@@ -16,6 +16,12 @@ cache:
   directories: $HOME/.local
   pip: true
 dist: xenial
+env:
+  global:
+    - CIBW_BEFORE_BUILD=".travis/build-codecs"
+    - CIBW_ENVIRONMENT="CFLAGS=-I/tmp/aiortc.deps/include LDFLAGS=-L/tmp/aiortc.deps/lib LD_LIBRARY_PATH=/tmp/aiortc.deps/lib PKG_CONFIG_PATH=/tmp/aiortc.deps/lib/pkgconfig"
+    - CIBW_SKIP="cp27-* cp33-* cp34-*"
+    - CIBW_TEST_COMMAND="python3 -m unittest discover -s {project}/tests"
 install: source .travis/install
 language: python
 matrix:
@@ -44,6 +50,8 @@ matrix:
   - env: BUILD=test CRYPTOGRAPHY_NO_BINARY=1
     dist: trusty
     python: "3.5"
+  - env: BUILD=wheel
+    install: pip install cibuildwheel
   - env: BUILD=sdist
     install: pip install twine
     python: "3.6"

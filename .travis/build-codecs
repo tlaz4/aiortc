@@ -4,18 +4,20 @@ set -e
 
 destdir=/tmp/aiortc.deps
 
-for d in libvpx opus $destdir; do
+for d in vendor $destdir; do
     if [ -e $d ]; then
         rm -rf $d
     fi
 done
+mkdir vendor
+cd vendor
 
 # build libvpx
 git clone https://chromium.googlesource.com/webm/libvpx
 cd libvpx
-git checkout -qf v1.7.0
+git checkout -qf v1.8.1
 
-./configure --prefix=$destdir --disable-examples --disable-tools --disable-unit-tests
+./configure --prefix=$destdir --disable-examples --disable-tools --disable-unit-tests --enable-pic
 make
 make install
 cd ..
@@ -23,9 +25,23 @@ cd ..
 # build opus
 git clone https://github.com/xiph/opus
 cd opus
-git checkout -qf v1.2.1
+git checkout -qf v1.3.1
 
 ./autogen.sh
-./configure --prefix=$destdir
+CFLAGS=-fPIC ./configure --prefix=$destdir --disable-shared
 make
 make install
+cd ..
+
+# build ffmpeg for PyAV
+git clone https://github.com/FFmpeg/FFmpeg
+cd FFmpeg
+git checkout -qf n4.2.1
+./configure --prefix=$destdir \
+    --disable-static --enable-shared \
+    --enable-gpl \
+    --enable-libmp3lame \
+    --enable-libx264
+make
+make install
+cd ..
