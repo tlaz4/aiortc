@@ -105,6 +105,7 @@ class H264Decoder(Decoder):
         try:
             packet = av.Packet(encoded_frame.data)
             packet.pts = encoded_frame.timestamp
+            logger.warning(packet.pts)
             packet.time_base = VIDEO_TIME_BASE
             frames = self.codec.decode(packet)
         except av.AVError as e:
